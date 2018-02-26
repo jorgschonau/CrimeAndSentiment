@@ -1,15 +1,12 @@
-#rm(list = ls())
+rm(list = ls())
 
 ####> Libraries ####
 
-library(caret)
 library(readr)
 library(dplyr)
 library(tidyr)
-#library(lubridate)
 library(ggplot2)
 library(reshape2)
-#library(reshape)
 library(stringr)
 library(syuzhet)
 library(viridis)
@@ -18,174 +15,182 @@ library(RSentiment)
 library(sentimentr)
 library(gutenbergr)
 library(tidytext)
-
 library(tm)
 library(SnowballC)
 library(wordcloud)
 library(RColorBrewer)
+library(textclean)
 
-# using gutengergr
+####> Loading & converting books ####
 
-#gutenberg_metadata %>% filter(author == "Dostoyevsky, Fyodor")
-#Dostoyevsky <- gutenberg_download(c(6536, 2197, 2554,  2638))
-# books
-# LOR1_raw = read_lines("The Fellowship of the Ring.txt") # read txt file example
+charlieandthechocolatefactory_raw <- read_lines("charlieandthechocolatefactory.txt") # read txt file
+crimepunishment_raw  <- read_lines("crimeandpunishment.txt") # read txt file
+orwell1984_raw <- read_lines("orwell1984.txt") 
+mobydick_raw <- read_lines("mobydick.txt")
+treasureisland_raw <- read_lines("treasureisland.txt")
 
-####> loading & converting books ####
+#fearandloathing_raw <- read_lines("Final project//Files//fearandloathing.txt")
 
-charlieandthechocolatefactory_raw <- read_lines("Final project//Files//Charlieandthechocolatefactory.txt") # read txt file
-crimepunishment_raw  <- read_lines("Final project//Files//Crimeandpunishment.txt") # read txt file
-Orwell1984_raw <- read_lines("Final project//Files//1984.txt")
-treasureisland_raw <- read_lines("Final project//Files//treasureisland.txt")
-mobydick_raw <- read_lines("Final project//Files//mobydick.txt")
-fearandloathing_raw <- read_lines("Final project//Files//fearandloathing.txt")
+# cleaning & converting into tidytext
+charlieandthechocolatefactory_clean <- replace_word_elongation(charlieandthechocolatefactory_raw)
+charlieandthechocolatefactory_clean <- replace_contraction(charlieandthechocolatefactory_clean)
 
-
-View()
-
-# converting into tidytext
-charlieandthechocolatefactory_df <- data_frame(line = 1:3970,text = charlieandthechocolatefactory_raw)
+charlieandthechocolatefactory_df <- data_frame(line = 1:2809,text = charlieandthechocolatefactory_clean)
 charlieandthechocolatefactory <- charlieandthechocolatefactory_df %>% mutate(linenumber = row_number(),
+                                                                             chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE)))) 
+
+crimepunishment_clean <- replace_word_elongation(crimepunishment_raw)
+crimepunishment_clean <- replace_contraction(crimepunishment_clean)  
+
+# Svidrigaïlov vs svidriga<U+00EF>lov
+
+                                                                                                                                                                                                                                         
+crimepunishment_df <- data_frame(line = 1:8071,text = crimepunishment_clean)
+crimepunishment <- crimepunishment_df %>% mutate(linenumber = row_number(), 
+                                                 chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE)))) 
+                                                                                         
+orwell1984_clean <- replace_word_elongation(orwell1984_raw)
+orwell1984_clean <- replace_contraction(orwell1984_clean)   
+
+orwell1984_df <- data_frame(line = 1:9866,text = orwell1984_clean)
+orwell1984 <- Orwell1984_df %>% mutate(linenumber = row_number(),
                                        chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
                                                                                ignore_case = TRUE)))) 
-crimepunishment_df <- data_frame(line = 1:15932,text = crimepunishment_raw)
-crimepunishment <- crimepunishment_df %>% mutate(linenumber = row_number(), 
-                                                 chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
-                                                 ignore_case = TRUE)))) 
 
-Orwell1984_df <- data_frame(line = 1:10288,text = Orwell1984_raw)
-Orwell1984 <- Orwell1984_df %>% mutate(linenumber = row_number(),
-                                       chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
-                                       ignore_case = TRUE)))) 
+mobydick_clean <- replace_word_elongation(mobydick_raw)
+mobydick_clean <- replace_contraction(mobydick_clean)   
 
-mobydick_df <- data_frame(line = 1:22932,text = mobydick_raw)
+mobydick_df <- data_frame(line = 1:22929,text = mobydick_clean)
 mobydick <- mobydick_df %>% mutate(linenumber = row_number(),
-                                    chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
-                                    ignore_case = TRUE)))) 
-
-treasureisland_df <- data_frame(line = 1:7500,text = treasureisland_raw)
-treasureisland <- treasureisland_df %>% mutate(linenumber = row_number(),
                                    chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
-                                   ignore_case = TRUE))))                                         
- 
-fearandloathing_df <- data_frame(line = 1:3906,text = fearandloathing_raw)
-fearandloathing <- fearandloathing_df %>% mutate(linenumber = row_number(),
-                                                 chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
-                        
+                                                                           ignore_case = TRUE)))) 
 
+treasureisland_clean <- replace_word_elongation(treasureisland_raw)
+treasureisland_clean <- replace_contraction(treasureisland_clean) 
+
+treasureisland_df <- data_frame(line = 1:7385,text = treasureisland_clean)
+treasureisland <- treasureisland_df %>% mutate(linenumber = row_number(),
+                                               chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
+                                                                                       ignore_case = TRUE))))                                         
+
+#fearandloathing_df <- data_frame(line = 1:3906,text = fearandloathing_raw)
+#fearandloathing <- fearandloathing_df %>% mutate(linenumber = row_number(),
+#                                                 chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
                                                                                          
- View(fearandloathing)                                                                                                                                                                           
                                                                                          
-#####> word frequencies & word clouds ####
+                                                                                         
+View(mobydick)                                                                                                                                                                           
+
+#####> Word frequencies, plots& word clouds ####
 
 tidy_Orwell1984 <- Orwell1984 %>%
-  unnest_tokens(word, text) %>%
-  anti_join(stop_words)
+ unnest_tokens(word, text) %>%
+ anti_join(stop_words)
 
 tidy_Orwell1984 %>%
-  count(word, sort = TRUE)
+ count(word, sort = TRUE)
 
 tidy_crimepunishment <- crimepunishment %>%
-  unnest_tokens(word, text) %>%
-  anti_join(stop_words)
+ unnest_tokens(word, text) %>%
+ anti_join(stop_words)
 
-tidy_crimepunishment %>%
-  count(word, sort = TRUE)
+View(tidy_crimepunishment %>%
+ count(word, sort = TRUE))
 
 tidy_charlieandthechocolatefactory <- charlieandthechocolatefactory %>%
-  unnest_tokens(word, text) %>%
-  anti_join(stop_words)
+ unnest_tokens(word, text) %>%
+ anti_join(stop_words)
 
 tidy_charlieandthechocolatefactory %>%
-  count(word, sort = TRUE)
+ count(word, sort = TRUE)
 
 tidy_mobydick <- mobydick %>%
-  unnest_tokens(word, text) %>%
-  anti_join(stop_words)
+ unnest_tokens(word, text) %>%
+ anti_join(stop_words)
 
 tidy_mobydick %>%
-  count(word, sort = TRUE)
+ count(word, sort = TRUE)
 
 tidy_treasureisland <- treasureisland %>%
-  unnest_tokens(word, text) %>%
-  anti_join(stop_words)
+unnest_tokens(word, text) %>%
+anti_join(stop_words)
 
 tidy_treasureisland %>%
-  count(word, sort = TRUE)
+ count(word, sort = TRUE)
 
-tidy_fearandloathing <- fearandloathing %>%
-  unnest_tokens(word, text) %>%
-  anti_join(stop_words)
+#tidy_fearandloathing <- fearandloathing %>%
+# unnest_tokens(word, text) %>%
+# anti_join(stop_words)
 
-tidy_fearandloathing %>%
-  count(word, sort = TRUE)
+#tidy_fearandloathing %>%
+# count(word, sort = TRUE)
 
 # plots
 
 tidy_charlieandthechocolatefactory %>%
-  count(word, sort = TRUE) %>%
-  top_n(20) %>%
-  mutate(word = reorder(word, n)) %>%
-  ggplot(aes(word, n)) +
-  geom_col() +
-  xlab(NULL) +
-  coord_flip()
+ count(word, sort = TRUE) %>%
+ top_n(20) %>%
+ mutate(word = reorder(word, n)) %>%
+ ggplot(aes(word, n)) +
+ geom_col() +
+ xlab(NULL) +
+ coord_flip()
 
 tidy_Orwell1984 %>%
-  count(word, sort = TRUE) %>%
-  top_n(20) %>%
-  mutate(word = reorder(word, n)) %>%
-  ggplot(aes(word, n)) +
-  geom_col() +
-  xlab(NULL) +
-  coord_flip()
+ count(word, sort = TRUE) %>%
+ top_n(20) %>%
+ mutate(word = reorder(word, n)) %>%
+ ggplot(aes(word, n)) +
+ geom_col() +
+ xlab(NULL) +
+ coord_flip()
 
 tidy_crimepunishment %>%
-  count(word, sort = TRUE) %>%
-  top_n(20) %>%
-  mutate(word = reorder(word, n)) %>%
-  ggplot(aes(word, n)) +
-  geom_col() +
-  xlab(NULL) +
-  coord_flip()
+ count(word, sort = TRUE) %>%
+ top_n(20) %>%
+ mutate(word = reorder(word, n)) %>%
+ ggplot(aes(word, n)) +
+ geom_col() +
+ xlab(NULL) +
+ coord_flip()
 
 tidy_mobydick %>%
-  count(word, sort = TRUE) %>%
-  top_n(20) %>%
-  mutate(word = reorder(word, n)) %>%
-  ggplot(aes(word, n)) +
-  geom_col() +
-  xlab(NULL) +
-  coord_flip()
+ count(word, sort = TRUE) %>%
+ top_n(20) %>%
+ mutate(word = reorder(word, n)) %>%
+ ggplot(aes(word, n)) +
+ geom_col() +
+ xlab(NULL) +
+ coord_flip()
 
 tidy_treasureisland %>%
-  count(word, sort = TRUE) %>%
-  top_n(20) %>%
-  mutate(word = reorder(word, n)) %>%
-  ggplot(aes(word, n)) +
-  geom_col() +
-  xlab(NULL) +
-  coord_flip()
+ count(word, sort = TRUE) %>%
+ top_n(20) %>%
+ mutate(word = reorder(word, n)) %>%
+ ggplot(aes(word, n)) +
+ geom_col() +
+ xlab(NULL) +
+ coord_flip()
 
-tidy_fearandloathing %>%
-  count(word, sort = TRUE) %>%
-  top_n(20) %>%
-  mutate(word = reorder(word, n)) %>%
-  ggplot(aes(word, n)) +
-  geom_col() +
-  xlab(NULL) +
-  coord_flip()
+#tidy_fearandloathing %>%
+# count(word, sort = TRUE) %>%
+# top_n(20) %>%
+# mutate(word = reorder(word, n)) %>%
+# ggplot(aes(word, n)) +
+# geom_col() +
+# xlab(NULL) +
+# coord_flip()
 
 # word cloud 
 
 # 1984
-OrwellCloud  <- Corpus (VectorSource(Orwell1984_raw))
+OrwellCloud  <- Corpus (VectorSource(orwell1984_clean))
 OrwellCloud <-tm_map(OrwellCloud, tolower)
 OrwellCloud <-tm_map(OrwellCloud, removeNumbers)
 OrwellCloud <-tm_map(OrwellCloud, removePunctuation)
 OrwellCloud <-tm_map(OrwellCloud, removeWords, stopwords("english"))
 OrwellCloud <-tm_map(OrwellCloud, stripWhitespace)
-OrwellCloud<-tm_map(OrwellCloud,removeWords, c("winston", "round")) # for removing specific words
+#OrwellCloud<-tm_map(OrwellCloud,removeWords, c("winston", "round")) # for removing specific words
 TDM_OrwellCloud<-TermDocumentMatrix (OrwellCloud) #Creates a TDM
 TDM1<-as.matrix(TDM_OrwellCloud) #Convert this into a matrix format
 v = sort(rowSums(TDM1), decreasing = TRUE) #Gives you the frequencies for every word
@@ -194,14 +199,13 @@ summary(v)
 
 wordcloud (OrwellCloud , scale=c(5,0.5), max.words=50, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
 
-# word cloud 
+# word clouds
 FearCloud <- Corpus (VectorSource(fearandloathing))
 FearCloud <-tm_map(FearCloud, tolower)
 FearCloud <-tm_map(FearCloud, removeNumbers)
 FearCloud <-tm_map(FearCloud, removePunctuation)
 FearCloud <-tm_map(FearCloud, removeWords, stopwords("english"))
 FearCloud <-tm_map(FearCloud, stripWhitespace)
-
 FearCloud<-tm_map(FearCloud,removeWords, c("said", "just", "can","att")) # for removing specific words
 
 TDM_FearCloud<-TermDocumentMatrix (FearCloud) #Creates a TDM
@@ -209,6 +213,25 @@ TDM_Fear<-as.matrix(TDM_FearCloud) #Convert this into a matrix format
 #v <- sort(rowSums(TDM_Fear), decreasing = TRUE) #Gives you the frequencies for every word
 #v
 wordcloud (FearCloud , scale=c(4,0.25), max.words=40, random.order=FALSE, rot.per=0.25, use.r.layout=T, colors=brewer.pal(8, "Dark2"))
+
+
+crimeCloud  <- Corpus (VectorSource(crimepunishment_clean))
+crimeCloud <-tm_map(crimeCloud, tolower)
+crimeCloud <-tm_map(crimeCloud, removeNumbers)
+crimeCloud <-tm_map(crimeCloud, removePunctuation)
+crimeCloud <-tm_map(crimeCloud, removeWords, stopwords("english"))
+crimeCloud <-tm_map(crimeCloud, stripWhitespace)
+#OrwellCloud<-tm_map(OrwellCloud,removeWords, c("winston", "round")) # for removing specific words
+TDM_crimeCloud <-TermDocumentMatrix (crimeCloud) #Creates a TDM
+TDM1 <- as.matrix(TDM_crimeCloud) #Convert this into a matrix format
+v = sort(rowSums(TDM1), decreasing = TRUE) #Gives you the frequencies for every word
+
+summary(v)
+
+wordcloud (crimeCloud , scale=c(5,0.5), max.words=40, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
+
+
+
 
 #alt
 pal2 <- brewer.pal(8,"Dark2")
@@ -218,7 +241,8 @@ ap.v <- sort(rowSums(TDM_Fear),decreasing=TRUE)
 ap.d <- data.frame(word = names(ap.v),freq=ap.v)
 table(ap.d$freq)
 
-
 wordcloud(ap.d$word,ap.d$freq, scale=c(8,.2),min.freq=3,
-          max.words=Inf, random.order=FALSE, rot.per=.15, colors=pal2)
+         max.words=Inf, random.order=FALSE, rot.per=.15, colors=pal2)
+
+#####> Sentiments ####
 
