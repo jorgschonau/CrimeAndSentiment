@@ -13,13 +13,22 @@ library(viridis)
 library(SentimentAnalysis)
 library(RSentiment)
 library(sentimentr)
-library(gutenbergr)
+#library(gutenbergr)
 library(tidytext)
 library(tm)
 library(SnowballC)
 library(wordcloud)
 library(RColorBrewer)
 library(textclean)
+library(widyr)
+library(igraph)
+library(ggraph)
+library(viridis)
+library(sentimentr)
+library(zoo)
+library(tokenizers)
+
+
 
 ####> Loading & converting books ####
 
@@ -28,66 +37,68 @@ crimepunishment_raw  <- read_lines("crimeandpunishment.txt") # read txt file
 orwell1984_raw <- read_lines("orwell1984.txt") 
 mobydick_raw <- read_lines("mobydick.txt")
 treasureisland_raw <- read_lines("treasureisland.txt")
+hitchhikersguide_raw <- read_lines("hitchhikersguide.txt")
+capital_raw <- read_lines("capital.txt")
+postoffice_raw <- read_lines("postoffice.txt")
+hamonrye_raw <- read_lines("hamonrye.txt")
 
-#fearandloathing_raw <- read_lines("Final project//Files//fearandloathing.txt")
 
 # cleaning & converting into tidytext
-charlieandthechocolatefactory_clean <- replace_word_elongation(charlieandthechocolatefactory_raw)
-charlieandthechocolatefactory_clean <- replace_contraction(charlieandthechocolatefactory_clean)
-
-charlieandthechocolatefactory_df <- data_frame(line = 1:2809,text = charlieandthechocolatefactory_clean)
+charlieandthechocolatefactory_clean <- cleanup(charlieandthechocolatefactory_raw)
+charlieandthechocolatefactory_df <- data_frame(line = 1:2518,text = charlieandthechocolatefactory_clean)
 charlieandthechocolatefactory <- charlieandthechocolatefactory_df %>% mutate(linenumber = row_number(),
                                                                              chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE)))) 
 
-crimepunishment_clean <- replace_word_elongation(crimepunishment_raw)
-crimepunishment_clean <- replace_contraction(crimepunishment_clean)  
-
-# Svidrigaïlov vs svidriga<U+00EF>lov
-
-                                                                                                                                                                                                                                         
-crimepunishment_df <- data_frame(line = 1:8071,text = crimepunishment_clean)
+crimepunishment_clean <- cleanup(crimepunishment_raw)
+crimepunishment_df <- data_frame(line = 1:22264,text = crimepunishment_clean)
 crimepunishment <- crimepunishment_df %>% mutate(linenumber = row_number(), 
                                                  chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE)))) 
                                                                                          
-orwell1984_clean <- replace_word_elongation(orwell1984_raw)
-orwell1984_clean <- replace_contraction(orwell1984_clean)   
-
-orwell1984_df <- data_frame(line = 1:9866,text = orwell1984_clean)
-orwell1984 <- Orwell1984_df %>% mutate(linenumber = row_number(),
+orwell1984_clean <- cleanup(orwell1984_raw)
+orwell1984_df <- data_frame(line = 1:13782,text = orwell1984_clean)
+orwell1984 <- orwell1984_df %>% mutate(linenumber = row_number(),
                                        chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
                                                                                ignore_case = TRUE)))) 
 
-mobydick_clean <- replace_word_elongation(mobydick_raw)
-mobydick_clean <- replace_contraction(mobydick_clean)   
-
-mobydick_df <- data_frame(line = 1:22929,text = mobydick_clean)
+mobydick_clean <- cleanup(mobydick_raw)
+mobydick_df <- data_frame(line = 1:22963,text = mobydick_clean)
 mobydick <- mobydick_df %>% mutate(linenumber = row_number(),
                                    chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
                                                                            ignore_case = TRUE)))) 
 
-treasureisland_clean <- replace_word_elongation(treasureisland_raw)
-treasureisland_clean <- replace_contraction(treasureisland_clean) 
-
-treasureisland_df <- data_frame(line = 1:7385,text = treasureisland_clean)
+treasureisland_clean <- cleanup(treasureisland_raw)
+treasureisland_df <- data_frame(line = 1:8322,text = treasureisland_clean)
 treasureisland <- treasureisland_df %>% mutate(linenumber = row_number(),
-                                               chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
-                                                                                       ignore_case = TRUE))))                                         
+                                               chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE))))                                         
 
-#fearandloathing_df <- data_frame(line = 1:3906,text = fearandloathing_raw)
-#fearandloathing <- fearandloathing_df %>% mutate(linenumber = row_number(),
-#                                                 chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
-                                                                                         
-                                                                                         
-                                                                                         
-View(mobydick)                                                                                                                                                                           
+capital_clean <- cleanup(capital_raw)
+capital_df <- data_frame(line = 1:32727,text = capital_clean)
+capital <- capital_df %>% mutate(linenumber = row_number(),
+                                               chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE))))                                         
+
+hitchhikersguide_clean <- cleanup(hitchhikersguide_raw)
+hitchhikersguide_df <- data_frame(line = 1:7368,text = hitchhikersguide_clean)
+hitchhikersguide <- hitchhikersguide_df %>% mutate(linenumber = row_number(),
+                                               chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE))))                                         
+
+postoffice_clean <-  cleanup(postoffice_raw)
+postoffice_df <- data_frame(line = 1:4857,text = postoffice_clean)
+postoffice <- postoffice_df %>% mutate(linenumber = row_number(),
+                                                   chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE))))                                 
+
+hamonrye_clean <-  cleanup(hamonrye_raw)
+hamonrye_df <- data_frame(line = 1:10715,text = hamonrye_clean)
+hamonrye <- hamonrye_df %>% mutate(linenumber = row_number(),
+                                       chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE))))                                 
+
 
 #####> Word frequencies, plots& word clouds ####
 
-tidy_Orwell1984 <- Orwell1984 %>%
+tidy_orwell1984 <- orwell1984 %>%
  unnest_tokens(word, text) %>%
  anti_join(stop_words)
 
-tidy_Orwell1984 %>%
+tidy_orwell1984 %>%
  count(word, sort = TRUE)
 
 tidy_crimepunishment <- crimepunishment %>%
@@ -118,14 +129,35 @@ anti_join(stop_words)
 tidy_treasureisland %>%
  count(word, sort = TRUE)
 
-#tidy_fearandloathing <- fearandloathing %>%
-# unnest_tokens(word, text) %>%
-# anti_join(stop_words)
+tidy_hitchhikersguide <- hitchhikersguide %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words)
 
-#tidy_fearandloathing %>%
-# count(word, sort = TRUE)
+tidy_hitchhikersguide %>%
+  count(word, sort = TRUE)
 
-# plots
+tidy_capital <- capital %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words)
+
+tidy_capital %>%
+  count(word, sort = TRUE)
+
+tidy_postoffice <- postoffice %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words)
+
+tidy_postoffice %>%
+  count(word, sort = TRUE)
+
+tidy_hamonrye <- hamonrye %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words)
+
+tidy_hamonrye %>%
+  count(word, sort = TRUE)
+
+# plots word freq
 
 tidy_charlieandthechocolatefactory %>%
  count(word, sort = TRUE) %>%
@@ -172,14 +204,41 @@ tidy_treasureisland %>%
  xlab(NULL) +
  coord_flip()
 
-#tidy_fearandloathing %>%
-# count(word, sort = TRUE) %>%
-# top_n(20) %>%
-# mutate(word = reorder(word, n)) %>%
-# ggplot(aes(word, n)) +
-# geom_col() +
-# xlab(NULL) +
-# coord_flip()
+tidy_capital %>%
+  count(word, sort = TRUE) %>%
+  top_n(20) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip()
+
+tidy_hitchhikersguide %>%
+  count(word, sort = TRUE) %>%
+  top_n(20) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip()
+
+tidy_postoffice %>%
+  count(word, sort = TRUE) %>%
+  top_n(20) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip()
+
+tidy_hamonrye %>%
+  count(word, sort = TRUE) %>%
+  top_n(20) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip()
 
 # word cloud 
 
@@ -246,3 +305,619 @@ wordcloud(ap.d$word,ap.d$freq, scale=c(8,.2),min.freq=3,
 
 #####> Sentiments ####
 
+# playing around
+
+get_nrc_sentiment(orw)
+get_nrc_sentiment(crime)
+get_nrc_sentiment(charlie)
+get_nrc_sentiment(cap)
+get_nrc_sentiment(hitch)
+
+get_nrc_sentiment(hitchbegin)
+hitchbegin <-as.character(hitchhikersguide[5:20,2])
+
+get_nrc_sentiment(crimebegin)
+crimebegin <- as.character(crimepunishment[2:200,2])
+
+crime <- as.character(crimepunishment[10:900,2])
+
+orw <- as.character(orwell1984[10:800,2])
+charlie <- as.character(charlieandthechocolatefactory[10:1200,2])
+crime <- as.character(crimepunishment[10:900,2])
+cap <- as.character(capital[10:900,2])
+hitch <- as.character(hitchhikersguide[10:900,2])
+
+
+ran <- c("wind","cold","beer","toilet","rape","war","fuck","ghetto","joy","happy","pussy","cat","love","porn")
+bing <- sentiments %>%
+  filter(lexicon == "bing") %>%
+  select(-score)
+
+afinn <- sentiments %>%
+  filter(lexicon == "AFINN") %>%
+  select(-sentiment)
+
+nrc <- sentiments %>%
+  filter(lexicon == "nrc") %>% filter 
+  select(-score)
+
+nrc %>% filter(word %in% ran)
+
+nrc %>% filter(word == "victory")
+
+# testing sentiment packages
+####> Bing ####
+
+orwellsentiment <- tidy_orwell1984 %>%
+  inner_join(bing) %>% 
+  count(index = linenumber %/% 80, score) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+crimesentiment_join <- tidy_crimepunishment %>%
+  inner_join(bing) %>% 
+  count(index = linenumber %/% 80, score) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+mobysentiment <- tidy_mobydick %>%
+  inner_join(bing) %>% 
+  count(index = linenumber %/% 80, score) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+hitchhikersentiment <- tidy_hitchhikersguide %>%
+  inner_join(bing) %>% 
+  count(index = linenumber %/% 80, score) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+charliesentiment <- tidy_charlieandthechocolatefactory %>%
+  inner_join(bing) %>% 
+  count(index = linenumber %/% 80, score) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+treasuresentiment <- tidy_treasureisland %>%
+  inner_join(bing) %>% 
+  count(index = linenumber %/% 80, score) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+pcrime <- ggplot(crimesentiment, aes(index, sentiment)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  #facet_wrap(~book, ncol = 2, scales = "free_x") +
+  theme_minimal(base_size = 13) +
+  labs(title = " Crime & Punisment",
+       y = "Sentiment") +
+  scale_fill_viridis(end = 0.75, discrete=TRUE, direction = -1) +
+  scale_x_discrete(expand=c(0.02,0)) +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) +
+  theme(axis.title.x=element_blank()) +
+  theme(axis.ticks.x=element_blank()) +
+  theme(axis.text.x=element_blank())
+
+pcharlie <- ggplot(charliesentiment, aes(index, sentiment)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  #facet_wrap(~book, ncol = 2, scales = "free_x") +
+  theme_minimal(base_size = 13) +
+  labs(title = " Charlie & the Chocolate Factory",
+       y = "Sentiment") +
+  scale_fill_viridis(end = 0.75, discrete=TRUE, direction = -1) +
+  scale_x_discrete(expand=c(0.02,0)) +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) +
+  theme(axis.title.x=element_blank()) +
+  theme(axis.ticks.x=element_blank()) +
+  theme(axis.text.x=element_blank())
+
+porwell <- ggplot(orwellsentiment, aes(index, sentiment)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  #facet_wrap(~book, ncol = 2, scales = "free_x") +
+  theme_minimal(base_size = 13) +
+  labs(title = " 1984",
+       y = "Sentiment") +
+  scale_fill_viridis(end = 0.75, discrete=TRUE, direction = -1) +
+  scale_x_discrete(expand=c(0.02,0)) +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) +
+  theme(axis.title.x=element_blank()) +
+  theme(axis.ticks.x=element_blank()) +
+  theme(axis.text.x=element_blank())
+
+ptreasure <- ggplot(treasuresentiment, aes(index, sentiment)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  #facet_wrap(~book, ncol = 2, scales = "free_x") +
+  theme_minimal(base_size = 13) +
+  labs(title = " Treasure Island",
+       y = "Sentiment") +
+  scale_fill_viridis(end = 0.75, discrete=TRUE, direction = -1) +
+  scale_x_discrete(expand=c(0.02,0)) +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) +
+  theme(axis.title.x=element_blank()) +
+  theme(axis.ticks.x=element_blank()) +
+  theme(axis.text.x=element_blank())
+
+phitch <- ggplot(hitchhikersentiment, aes(index, sentiment)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  theme_minimal(base_size = 13) +
+  labs(title = " Hitchhiker's Guide",
+       y = "Sentiment") +
+  scale_fill_viridis(end = 0.75, discrete=TRUE, direction = -1) +
+  scale_x_discrete(expand=c(0.02,0)) +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) +
+  theme(axis.title.x=element_blank()) +
+  theme(axis.ticks.x=element_blank()) +
+  theme(axis.text.x=element_blank())
+
+multiplot(pcrime, porwell, pcharlie,phitch, cols=2)
+
+####> NRC ####
+
+nrc_simple <- nrc %>% filter (sentiment %in% c("negative","positive"))
+nrc_simple_1984 <- nrc_simple %>% filter (word != "brother" & word != "victory") # somewhat rectifying 1984 specific vocab
+
+orwellsentiment_nrc <- tidy_orwell1984 %>%
+  inner_join(nrc_simple_1984) %>% 
+  count(index = linenumber %/% 80, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+mean(orwellsentiment_nrc$sentiment)
+# peaks/ lows
+orwellsentiment_nrc_peaks <- orwellsentiment_nrc %>% filter (sentiment > 17 | sentiment < -17)
+
+View(orwellsentiment_nrc_peaks)
+
+orwellsentiment_nrc_join %>% filter (sentiment > 17 | sentiment < -17)
+
+orwellsentiment_nrc_details <- tidy_orwell1984 %>%
+  inner_join(nrc_simple_1984) %>% mutate(index = linenumber %/% 80) %>% 
+  select(linenumber, chapter, word, sentiment, index) 
+
+orwellsentiment_nrc_details %>% filter (word == "beauty")
+
+View(orwellsentiment_nrc)
+  
+group_by (index) %>% summarise(sentiment = sum(score))
+
+View(orwellsentiment_nrc)
+
+crimesentiment_nrc <- tidy_crimepunishment %>%
+  inner_join(nrc_simple) %>% 
+  count(index = linenumber %/% 110, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+# linenumber %/% 120 - maybe 100 ...
+
+crimesentiment_nrc_details <- tidy_crimepunishment %>%
+  inner_join(nrc_simple) %>% mutate(index = linenumber %/% 110) %>% 
+  select(linenumber, chapter, word, sentiment, index) 
+
+orwellsentiment_nrc_details %>% filter (word == "cigarette")
+
+
+
+hitchhikersentiment_nrc <- tidy_hitchhikersguide %>%
+  inner_join(nrc_simple) %>% 
+  count(index = linenumber %/% 80, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+View(hitchhikersentiment_nrc)_details) <- tidy_hitchhikersguide %>%
+  inner_join(nrc_simple) %>% mutate(index = linenumber %/% 80) %>% 
+  select(linenumber, chapter, word, sentiment, index) 
+
+hitchhikersentiment_nrc_details  %>% filter (word == "therapeutic")
+
+
+
+charliesentiment_nrc <- tidy_charlieandthechocolatefactory %>%
+  inner_join(nrc_simple) %>% 
+  count(index = linenumber %/% 30, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+treasuresentiment_nrc <- tidy_treasureisland %>%
+  inner_join(nrc_simple) %>% 
+  count(index = linenumber %/% 80, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+postofficesentiment_nrc<- tidy_postoffice %>%
+  inner_join(nrc_simple) %>% 
+  count(index = linenumber %/% 80, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+hamonryesentiment_nrc <- tidy_hamonrye %>%
+  inner_join(nrc_simple) %>% 
+  count(index = linenumber %/% 80, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+
+pcrime_nrc <- ggplot(crimesentiment_nrc, aes(index, sentiment)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  theme_minimal(base_size = 11) +
+  labs(title = "Crime & Punishment",
+       y = "Sentiment") +
+  scale_fill_viridis(end = 0.75, discrete=TRUE, direction = -1) +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) 
+
+pcharlie_nrc <- ggplot(charliesentiment_nrc, aes(index, sentiment)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  theme_minimal(base_size = 11) +
+  labs(title = " Charlie & the Chocolate Factory",
+       y = "Sentiment") +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) 
+
+porwell_nrc <- ggplot(orwellsentiment_nrc, aes(index, sentiment)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  theme_minimal(base_size = 11) +
+  labs(title = " 1984",
+       y = "Sentiment") +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) 
+
+
+phitch_nrc <- ggplot(hitchhikersentiment_nrc, aes(index, sentiment)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  theme_minimal(base_size = 11) +
+  labs(title = "Hitchhiker's Guide",
+       y = "Sentiment") +
+  #scale_fill_viridis(end = 0.75, discrete=TRUE, direction = -1) +
+  #scale_x_discrete(expand=c(0.02,0)) +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) 
+
+
+multiplot(pcrime_nrc,porwell_nrc, pcharlie_nrc, phitch_nrc, cols=2)
+
+
+####> AFINN ####
+View(orwellsentiment_afinn_join) <- tidy_orwell1984 %>%
+  inner_join(afinn) %>% mutate(index = linenumber %/% 80) %>%
+  group_by (index) %>% summarise(sentiment = sum(score))
+
+crimesentiment_afinn <- tidy_crimepunishment %>%
+  inner_join(afinn) %>% mutate(index = linenumber %/% 80) %>%
+  group_by (index) %>% summarise(sentiment = sum(score))
+
+mobysentiment_afinn <- tidy_mobydick %>%
+  inner_join(afinn) %>% mutate(index = linenumber %/% 80) %>%
+  group_by (index) %>% summarise(sentiment = sum(score))
+
+hitchhikersentiment_afinn <- tidy_hitchhikersguide %>%
+  inner_join(afinn) %>% mutate(index = linenumber %/% 80) %>%
+  group_by (index) %>% summarise(sentiment = sum(score))
+
+charliesentiment_afinn <- tidy_charlieandthechocolatefactory %>%
+  inner_join(afinn) %>% mutate(index = linenumber %/% 80) %>%
+  group_by (index) %>% summarise(sentiment = sum(score))
+
+treasuresentiment_afinn <- tidy_treasureisland %>%
+  inner_join(afinn) %>% mutate(index = linenumber %/% 80) %>%
+  group_by (index) %>% summarise(sentiment = sum(score))
+
+pcrime_afinn <- ggplot(crimesentiment_afinn, aes(index, sentiment)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  theme_minimal(base_size = 12) +
+  labs(title = "Crime & Punishment",
+       y = "Sentiment") +
+  scale_fill_viridis(end = 0.75, discrete=TRUE, direction = -1) +
+  scale_x_discrete(expand=c(0.02,0)) +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) +
+  theme(axis.title.x=element_blank()) +
+  theme(axis.ticks.x=element_blank()) +
+  theme(axis.text.x=element_blank())
+
+pcharlie_afinn <- ggplot(charliesentiment_afinn, aes(index, sentiment)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  theme_minimal(base_size = 13) +
+  labs(title = " Charlie & the Chocolate Factory",
+       y = "Sentiment") +
+  scale_fill_viridis(end = 0.75, discrete=TRUE, direction = -1) +
+  scale_x_discrete(expand=c(0.02,0)) +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) +
+  theme(axis.title.x=element_blank()) +
+  theme(axis.ticks.x=element_blank()) +
+  theme(axis.text.x=element_blank())
+
+porwell_afinn <- ggplot(orwellsentiment_afinn, aes(index, sentiment)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  theme_minimal(base_size = 13) +
+  labs(title = " 1984",
+       y = "Sentiment") +
+  scale_fill_viridis(end = 0.75, discrete=TRUE, direction = -1) +
+  scale_x_discrete(expand=c(0.02,0)) +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) +
+  theme(axis.title.x=element_blank()) +
+  theme(axis.ticks.x=element_blank()) +
+  theme(axis.text.x=element_blank())
+
+ptreasure_afinn <- ggplot(treasuresentiment_afinn, aes(index, sentiment)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  theme_minimal(base_size = 13) +
+  labs(title = " Treasure Island",
+       y = "Sentiment") +
+  scale_fill_viridis(end = 0.75, discrete=TRUE, direction = -1) +
+  scale_x_discrete(expand=c(0.02,0)) +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) +
+  theme(axis.title.x=element_blank()) +
+  theme(axis.ticks.x=element_blank()) +
+  theme(axis.text.x=element_blank())
+
+phitch_afinn <- ggplot(hitchhikersentiment_afinn, aes(index, sentiment)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  theme_minimal(base_size = 13) +
+  labs(title = " Hitchhiker's Guide",
+       y = "Sentiment") +
+  scale_fill_viridis(end = 0.75, discrete=TRUE, direction = -1) +
+  scale_x_discrete(expand=c(0.02,0)) +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) +
+  theme(axis.title.x=element_blank()) +
+  theme(axis.ticks.x=element_blank()) +
+  theme(axis.text.x=element_blank())
+
+multiplot(pcrime_afinn, porwell_afinn, pcharlie_afinn, phitch_afinn, cols=2)
+
+####> Sentimentr ####
+# unlisting & tokenize by sentence
+# 1984
+orwell1984_raw_uncontracted <- replace_word_elongation(orwell1984_raw)
+orwell1984_raw_uncontracted <- replace_contraction(orwell1984_raw_uncontracted)
+
+orwell_raw_unlist <- paste(unlist(orwell1984_raw_uncontracted), collapse =" ")
+orwell_sentences <- get_sentences(orwell_raw_unlist)
+orwell1984_sentiment_sentences <- sentiment(orwell_sentences)
+
+orwell1984_sentiment_sentences_df <- as.data.frame(orwell1984_sentiment_sentences)
+orwell1984_sentiment_sentences_df$sentiment <- round(orwell1984_sentiment_sentences_df$sentiment, digits = 7)
+
+orwell_sentences_df <- as.data.frame(orwell_sentences)
+orwell1984_sentences_df <- data.frame(matrix(unlist(orwell_sentences_df), byrow=T), stringsAsFactors=FALSE)
+colnames(orwell1984_sentences_df) <- "text"
+
+orwell1984_sentences_df$chars <-nchar(orwell1984_sentences_df$text)
+orwell1984_sentiment_sentences_df$chars <- orwell1984_sentences_df$chars
+orwell1984_sentiment_sentences_df$chars_sum <- cumsum(orwell1984_sentiment_sentences_df$chars)
+orwell1984_sentiment_sentences_df <- orwell1984_sentiment_sentences_df %>%
+  mutate(line = chars_sum %/% 60)
+orwell1984_sentiment_sentences_df <- orwell1984_sentiment_sentences_df %>%
+  mutate(index = line %/% 65)
+orwell1984_sentiment_sentences_df$sentence_id <- NULL
+
+orwell1984_sentimentr_summary <- orwell1984_sentiment_sentences_df %>%
+  group_by(index) %>% summarise(sentiment_sum = sum(sentiment))
+
+# charlie
+
+charlie_raw_uncontracted <- replace_word_elongation(charlieandthechocolatefactory_raw)
+charlie_raw_uncontracted <- replace_contraction(charlie_raw_uncontracted)
+
+charlie_raw_unlist <- paste(unlist(charlie_raw_uncontracted), collapse =" ")
+charlie_sentences <- get_sentences(charlie_raw_unlist)
+charlie_sentiment_sentences <- sentiment(charlie_sentences)
+
+charlie_sentiment_sentences_df <- as.data.frame(charlie_sentiment_sentences)
+charlie_sentiment_sentences_df$sentiment <- round(charlie_sentiment_sentences_df$sentiment, digits = 7)
+
+charlie_sentences_df <- as.data.frame(charlie_sentences)
+charlie_sentences_df <- data.frame(matrix(unlist(charlie_sentences_df), byrow=T), stringsAsFactors=FALSE)
+colnames(charlie_sentences_df) <- "text"
+
+charlie_sentences_df$chars <-nchar(charlie_sentences_df$text)
+charlie_sentences_df$chars_sum <- cumsum(charlie_sentences_df$chars)
+
+charlie_sentences_df <- charlie_sentences_df %>%
+  mutate(line = chars_sum %/% 60)
+charlie_sentences_df <- charlie_sentences_df %>%
+  mutate(index = line %/% 40)
+
+View(charlie_sentences_df)
+
+charlie_sentiment_sentences_df$chars <- charlie_sentences_df$chars
+charlie_sentiment_sentences_df$chars_sum <- cumsum(charlie_sentiment_sentences_df$chars)
+charlie_sentiment_sentences_df <- charlie_sentiment_sentences_df %>%
+  mutate(line = chars_sum %/% 60)
+charlie_sentiment_sentences_df <- charlie_sentiment_sentences_df %>%
+  mutate(index = line %/% 40)
+charlie_sentiment_sentences_df$sentence_id <- NULL
+
+charlie_sentimentr_summary <- charlie_sentiment_sentences_df %>%
+  group_by(index) %>% summarise(sentiment_sum = sum(sentiment))
+
+View(charlie_sentiment_sentences_df)
+
+# crime
+
+crime_raw_uncontracted <- replace_word_elongation(crimepunishment_raw)
+crime_raw_uncontracted <- replace_contraction(crime_raw_uncontracted)
+
+crime_raw_unlist <- paste(unlist(crime_raw_uncontracted), collapse =" ")
+crime_sentences <- get_sentences(crime_raw_unlist)
+crime_sentiment_sentences <- sentiment(crime_sentences)
+
+crime_sentiment_sentences_df <- as.data.frame(crime_sentiment_sentences)
+crime_sentiment_sentences_df$sentiment <- round(crime_sentiment_sentences_df$sentiment, digits = 7)
+
+crime_sentences_df <- as.data.frame(crime_sentences)
+crime_sentences_df <- data.frame(matrix(unlist(crime_sentences_df), byrow=T), stringsAsFactors=FALSE)
+colnames(crime_sentences_df) <- "text"
+
+crime_sentences_df$chars <-nchar(crime_sentences_df$text)
+crime_sentences_df$chars_sum <- cumsum(crime_sentences_df$chars)
+
+crime_sentences_df <- crime_sentences_df %>%
+  mutate(line = chars_sum %/% 70)
+crime_sentences_df <- crime_sentences_df %>%
+  mutate(index = line %/% 80)
+
+crime_sentences_df$sentiment <- crime_sentiment_sentences_df$sentiment
+
+View(crime_sentences_df)
+
+crime_sentiment_sentences_df$chars <- crime_sentences_df$chars
+crime_sentiment_sentences_df$chars_sum <- cumsum(crime_sentiment_sentences_df$chars)
+crime_sentiment_sentences_df <- crime_sentiment_sentences_df %>%
+  mutate(line = chars_sum %/% 70)
+crime_sentiment_sentences_df <- crime_sentiment_sentences_df %>%
+  mutate(index = line %/% 80)
+crime_sentiment_sentences_df$sentence_id <- NULL
+
+crime_sentimentr_summary <- crime_sentiment_sentences_df %>%
+  group_by(index) %>% summarise(sentiment_sum = sum(sentiment))
+
+View(crime_sentiment_sentences_df)
+
+# plot
+
+porwell_sentimentr <- ggplot(orwell1984_sentimentr_summary, aes(index, sentiment_sum)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  theme_minimal(base_size = 11) +
+  labs(title = " 1984",
+       y = "Sentiment") +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) 
+
+pcharlie_sentimentr <- ggplot(charlie_sentimentr_summary, aes(index, sentiment_sum)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  theme_minimal(base_size = 11) +
+  labs(title = "Charlie",
+       y = "Sentiment") +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) 
+
+pcrime_sentimentr <- ggplot(crime_sentimentr_summary, aes(index, sentiment_sum)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  theme_minimal(base_size = 11) +
+  labs(title = "Crime & Punishment",
+       y = "Sentiment") +
+  theme(strip.text=element_text(hjust=0)) +
+  theme(strip.text = element_text(face = "italic")) 
+
+pcrime_nrc
+
+
+pcharlie_nrc
+
+porwell_nrc
+
+
+
+
+try[4]
+try <- as.character(as.matrix(orwell1984_clean[10:20]))
+
+unlist(try)
+bing
+
+Orwell1984[5:20,2]
+
+replace_word_elongation(x)
+replace_contraction(Orwell1984[10:200,2])
+
+
+title_wordpairs_1984 <- tidy_orwell1984  %>% 
+  pairwise_count(word, id, sort = TRUE, upper = FALSE)
+
+title_word_pairs
+
+tidy_orwell1984 <- Orwell1984 %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words)
+
+tidy_orwell1984 %>%
+  count(word, sort = TRUE)
+
+####> Notes ####
+
+#Key scenes
+#crime and punishment
+#murder of pawnkeeper index 26,
+#dovs' death, confession, siberia 
+
+#Charlie
+#finds golden ticket, factory tour, meets willy wonka ,oompa loompas, willy Wonka invites Charlie to inherit the factory
+
+#1984 
+# diary (i hate big brother) index > 11
+# index 11: W. fixes sink at Parson's
+# meeting julia in the woods
+# conspirative meeting with obrien
+# index 126: prole woman singing
+# arrested, Room 101 - Rats!, 
+# W & J confess their betrayal to one another
+
+# hitchhiker
+# earth blown up index 14
+# vogon petry "Ode to a lump of putty"
+
+
+
+
+
+
+#happy books:
+#Horton Hears a Who by Dr. Seuss
+#The Cat in the Hat
+
+
+####> Functions ####
+
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+  
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+  
+  if (numPlots==1) {
+    print(plots[[1]])
+    
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+
+cleanup <- function(x) {
+  library(textclean)
+  result <- tolower(x)
+  result <- replace_word_elongation(result)
+  result <- replace_contraction(result)
+  result <- strwrap(result, width = 72)
+  return(result)
+}
