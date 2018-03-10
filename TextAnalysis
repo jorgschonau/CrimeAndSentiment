@@ -276,7 +276,7 @@ crime <- as.character(crimepunishment[10:900,2])
 
 orw <- as.character(orwell1984[10:800,2])
 
-ran <- c("wind","cold","beer","toilet","rape","war","fuck","ghetto","joy","happy","pussy","cat","love","porn")
+ran <- c("wind","cold","beer","toilet","war","ghetto","joy","happy","cat","snake","temptation","love","government","armageddon")
 
 # stting up lexicons
 
@@ -521,8 +521,8 @@ pcrime_nrc_emos <- ggplot(crimesentiment_nrc_emo, aes(index, sentiment), alpha=0
        y = "Sentiment", x = "Index (1 equals about 2 pages)") +
   scale_fill_viridis(end = 0.75, discrete=TRUE, direction = -1)# +
 
+# playing around with different themes
 pcrime_nrc_emos + theme_xkcd()
-
 pcrime_nrc_emos + theme_economist() + scale_colour_economist()
 pcrime_nrc_emos + theme_tufte() 
 porwell_nrc_emos + theme_economist() + scale_colour_economist()
@@ -541,7 +541,7 @@ pcrime_nrc_emos + geom_line(data=crimesentiment_nrc_emo, aes(x=index, y=sadness)
   theme_economist() + scale_colour_economist()
 
 
-#charlie plot
+# charlie plot
 pcharlie_nrc_emos <- ggplot(charliesentiment_nrc_emo, aes(index, sentiment)) +
   geom_bar(stat = "identity", show.legend = FALSE) +
   theme_minimal(base_size = 11) +
