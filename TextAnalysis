@@ -1,4 +1,4 @@
-rm(list = ls())
+# rm(list = ls())
 ####> Libraries ####
 library(readr)
 library(dplyr)
@@ -245,9 +245,6 @@ v = sort(rowSums(TDM1), decreasing = TRUE) #Gives you the frequencies for every 
 summary(v)
 
 wordcloud (crimeCloud , scale=c(5,0.5), max.words=40, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
-
-
-
 
 #alt
 pal2 <- brewer.pal(8,"Dark2")
@@ -725,7 +722,6 @@ pcharlie_sentimentr <- ggplot(charlie_sentimentr_summary, aes(index, sentiment_s
 
 pcharlie_nrc
 
-
 pcrime_sentimentr <- ggplot(crime_sentimentr_summary, aes(index, sentiment_sum)) +
   geom_bar(stat = "identity", show.legend = FALSE) +
   theme_minimal(base_size = 11) +
@@ -735,62 +731,6 @@ pcrime_sentimentr <- ggplot(crime_sentimentr_summary, aes(index, sentiment_sum))
   theme(strip.text = element_text(face = "italic")) 
 
 pcrime_nrc
-
-
-####> Notes ####
-
-#Key events
-
-# Crime and punishment
-# Raskolnikov dreams of the horse beaten to death, index 18
-# murder of pawnkeeper index 26,
-# and her sister ....
-# dovs' death
-# confession
-# siberia 
-
-# Charlie
-# Oompa Loompas, index 31 - 32 
-# Finds golden ticket
-# Factory tour
-# meets willy wonka
-# Willy Wonka invites Charlie to inherit the factory
-
-#1984 
-# diary (i hate big brother) index > 11
-# index 9: W. fixes sink at the Parson's
-# index 10, Parson's son threatens W. with toy pistol, calls him a Traitor"
-# W. contemplates hopelessness , index 47
-# First meeting with Julia in the woods
-# First conspirative meeting with O'brien - Friend or Foe?
-# Julia's perspective 70
-# index 75, childhood memory, W. steals chocolate 
-# index 101: prole woman singing, the proles are the only hope
-# W. & j. are arrested, index 102
-# Room 101, torture, index 112
-# W. recovers, index 127
-# Rats!, index 131
-# W. & J. confess their betrayal to one another
-# Decisive victory against Eurasia, W. loves Big Brother
-# the peak in arund 18 - 22 is mostly due Winston's thought on his work at the ministry of truth 
-# ("ministry" & "truth" are both rated by nrc as positive words, also "job" & "comrade")
-
-# hitchhiker
-# Earth Blown up index 14
-# Zaphod and Trillian steal the Heart of Gold.
-# Vogon Petry - "Ode to a Small Lump of Green Putty ..."
-# First encounter marvin the paranoid android 
-# heading to the Restaurant at the End of the Universe for some food.
-
-# Structure of plots
-# Sentiments plus graphs for each of the emos (anger, fear, joy etc)
-# Option for showing 1 -4 books
-# Maybe changing granularity? (by making the count(index = linenumber %/% 100, sentiment) a vaiable?)
-# Icons/ Symbols for Happy/ Sad ie :) and :(  ) ?
-# Pie charts of emo summary
-# Textcluds
-# Words freqs
-
 
 ####> Functions ####
 
