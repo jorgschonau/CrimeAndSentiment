@@ -29,8 +29,8 @@ library(ggthemes)
 library(maps)
 
 ####> Loading & converting books ####
-charlieandthechocolatefactory_raw <- read_lines("charlieandthechocolatefactory.txt") # read txt file
-crimepunishment_raw  <- read_lines("crimeandpunishment.txt") # read txt file
+charlieandthechocolatefactory_raw <- read_lines("charlieandthechocolatefactory.txt")
+crimepunishment_raw  <- read_lines("crimeandpunishment.txt")
 orwell1984_raw <- read_lines("orwell1984.txt") 
 mobydick_raw <- read_lines("mobydick.txt")
 treasureisland_raw <- read_lines("treasureisland.txt")
@@ -47,7 +47,7 @@ crimepunishment_df <- data_frame(line = 1:22264,text = crimepunishment_clean)
 crimepunishment <- crimepunishment_df %>% mutate(linenumber = row_number(), 
                                                  chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE)))) 
 
-
+# searching for specific words, example
 View(tidy_crimepunishment %>% filter(word == "america"))
                                                                                          
 orwell1984_clean <- cleanup(orwell1984_raw)
@@ -72,10 +72,10 @@ hitchhikersguide_df <- data_frame(line = 1:7368,text = hitchhikersguide_clean)
 hitchhikersguide <- hitchhikersguide_df %>% mutate(linenumber = row_number(),
                                                chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE))))                                         
 
-
+# show entire stop word dictionary
 View(stop_words)
 
-#####> Word frequencies, plots& word clouds ####
+#####> Word frequencies, plots & word clouds ####
 
 tidy_orwell1984 <- orwell1984 %>%
  unnest_tokens(word, text) %>%
