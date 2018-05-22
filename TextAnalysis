@@ -32,8 +32,6 @@ library(maps)
 charlieandthechocolatefactory_raw <- read_lines("charlieandthechocolatefactory.txt")
 crimepunishment_raw  <- read_lines("crimeandpunishment.txt")
 orwell1984_raw <- read_lines("orwell1984.txt") 
-mobydick_raw <- read_lines("mobydick.txt")
-treasureisland_raw <- read_lines("treasureisland.txt")
 hitchhikersguide_raw <- read_lines("hitchhikersguide.txt")
 
 # cleaning & converting into tidytext
@@ -56,23 +54,12 @@ orwell1984 <- orwell1984_df %>% mutate(linenumber = row_number(),
                                        chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
                                                                                ignore_case = TRUE)))) 
 
-mobydick_clean <- cleanup(mobydick_raw)
-mobydick_df <- data_frame(line = 1:22963,text = mobydick_clean)
-mobydick <- mobydick_df %>% mutate(linenumber = row_number(),
-                                   chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]",
-                                                                           ignore_case = TRUE)))) 
 
-treasureisland_clean <- cleanup(treasureisland_raw)
-treasureisland_df <- data_frame(line = 1:8322,text = treasureisland_clean)
-treasureisland <- treasureisland_df %>% mutate(linenumber = row_number(),
-                                               chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE))))                                         
-
-hitchhikersguide_clean <- cleanup(hitchhikersguide_raw)
 hitchhikersguide_df <- data_frame(line = 1:7368,text = hitchhikersguide_clean)
 hitchhikersguide <- hitchhikersguide_df %>% mutate(linenumber = row_number(),
                                                chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE))))                                         
 
-# show entire stop word dictionary
+# show entire dictionary of stop_words
 View(stop_words)
 
 #####> Word frequencies, plots & word clouds ####
@@ -109,24 +96,6 @@ tidy_charlieandthechocolatefactory %>%
 write.csv(tidy_charlieandthechocolatefactory %>%
             count(word, sort = TRUE), file = "wordfreqs_charlie.csv")
 
-
-tidy_mobydick <- mobydick %>%
- unnest_tokens(word, text) %>%
- anti_join(stop_words)
-
-tidy_mobydick %>%
- count(word, sort = TRUE)
-
-
-
-
-tidy_treasureisland <- treasureisland %>%
-unnest_tokens(word, text) %>%
-anti_join(stop_words)
-
-tidy_treasureisland %>%
-count(word, sort = TRUE)
-
 tidy_hitchhikersguide <- hitchhikersguide %>%
   unnest_tokens(word, text) %>%
   anti_join(stop_words)
@@ -134,7 +103,7 @@ tidy_hitchhikersguide <- hitchhikersguide %>%
 tidy_hitchhikersguide %>%
   count(word, sort = TRUE)
 
-# exporting each freq list into csv for Tableau later
+# exporting each freq list into csv (for Tableau later)
 write.csv(tidy_hitchhikersguide %>%
             count(word, sort = TRUE) %>%
             top_n(50) %>% mutate(book = "hitch")
@@ -155,58 +124,30 @@ write.csv(tidy_charlieandthechocolatefactory %>%
             top_n(50) %>% mutate(book = "charlie")
             , file = "wordfreqs_charlieandthechocolatefactory.csv")
 
-write.csv(tidy_postoffice %>%
-            count(word, sort = TRUE) %>%
-            top_n(50) %>% mutate(book = "post")
-           , file = "wordfreqs_postoffice.csv")
-
-write.csv(tidy_treasureisland %>%
-            count(word, sort = TRUE) %>%
-            top_n(50) %>% mutate(book = "treasure")
-           , file = "wordfreqs_treasureisland.csv")
-
 write.csv(tidy_crimepunishment%>%
             count(word, sort = TRUE)%>%
             top_n(50)%>% mutate(book = "crime")
             , file = "wordfreqs_crimepunishment.csv")
 
-###
+# word frequencies
 
 freq1 <- tidy_hitchhikersguide %>%
             count(word, sort = TRUE) %>%
             top_n(100) %>% mutate(book = "hitch")
 
-freq2 <- tidy_mobydick %>%
-            count(word, sort = TRUE) %>%
-            top_n(100)%>% mutate(book = "moby")
-
-freq3 <- tidy_orwell1984 %>%
+freq2 <- tidy_orwell1984 %>%
             count(word, sort = TRUE) %>%
             top_n(100) %>% mutate(book = "1984")
 
-freq4 <- tidy_charlieandthechocolatefactory %>%
+freq3 <- tidy_charlieandthechocolatefactory %>%
             count(word, sort = TRUE) %>%
             top_n(100) %>% mutate(book = "charlie")
 
-tidy_postoffice <-  gsub("[[:digit:]]", "", tidy_postoffice)
-
-postoffice_clean_nonums <- gsub("[[:digit:]]", "", postoffice_clean)
-
-
-freq5 <- tidy_postoffice %>%
-            count(word, sort = TRUE) %>%
-            top_n(100) %>% mutate(book = "post")
-
-freq6 <- tidy_treasureisland %>%
-            count(word, sort = TRUE) %>%
-            top_n(100) %>% mutate(book = "treasure")
-
-freq7 <- tidy_crimepunishment%>%
+freq4 <- tidy_crimepunishment%>%
             count(word, sort = TRUE)%>%
             top_n(100)%>% mutate(book = "crime")
 
-
-View(wordfreqs) <- rbind(freq1,freq2,freq3,freq4,freq5,freq6,freq7)
+wordfreqs <- rbind(freq1,freq2,freq3,freq4)
 
 write.csv(wordfreqs, file = "wordfreqs_all.csv")
 
@@ -239,33 +180,6 @@ tidy_crimepunishment %>%
  xlab(NULL) +
  coord_flip()
 
-tidy_mobydick %>%
- count(word, sort = TRUE) %>%
- top_n(20) %>%
- mutate(word = reorder(word, n)) %>%
- ggplot(aes(word, n)) +
- geom_col() +
- xlab(NULL) +
- coord_flip()
-
-tidy_treasureisland %>%
- count(word, sort = TRUE) %>%
- top_n(20) %>%
- mutate(word = reorder(word, n)) %>%
- ggplot(aes(word, n)) +
- geom_col() +
- xlab(NULL) +
- coord_flip()
-
-tidy_capital %>%
-  count(word, sort = TRUE) %>%
-  top_n(20) %>%
-  mutate(word = reorder(word, n)) %>%
-  ggplot(aes(word, n)) +
-  geom_col() +
-  xlab(NULL) +
-  coord_flip()
-
 tidy_hitchhikersguide %>%
   count(word, sort = TRUE) %>%
   top_n(20) %>%
@@ -275,27 +189,8 @@ tidy_hitchhikersguide %>%
   xlab(NULL) +
   coord_flip()
 
-tidy_postoffice %>%
-  count(word, sort = TRUE) %>%
-  top_n(20) %>%
-  mutate(word = reorder(word, n)) %>%
-  ggplot(aes(word, n)) +
-  geom_col() +
-  xlab(NULL) +
-  coord_flip()
+# word clouds
 
-tidy_hamonrye %>%
-  count(word, sort = TRUE) %>%
-  top_n(20) %>%
-  mutate(word = reorder(word, n)) %>%
-  ggplot(aes(word, n)) +
-  geom_col() +
-  xlab(NULL) +
-  coord_flip()
-
-# word cloud 
-
-# 1984
 OrwellCloud  <- Corpus (VectorSource(orwell1984_clean))
 OrwellCloud <-tm_map(OrwellCloud, tolower)
 OrwellCloud <-tm_map(OrwellCloud, removeNumbers)
@@ -370,7 +265,7 @@ crime <- as.character(crimepunishment[10:900,2])
 
 orw <- as.character(orwell1984[10:800,2])
 
-ran <- c("wind","cold","beer","toilet","rape","war","fuck","ghetto","joy","happy","pussy","cat","love","porn")
+ran <- c("wind","cold","beer","toilet","rape","war","bile","ghetto","joy","happy","cat","blood","sugar","sex","magic")
 
 # stting up lexicons
 
@@ -387,7 +282,6 @@ afinn <- sentiments %>%
 
 nrc <- sentiments %>%
   filter(lexicon == "nrc") %>% select(-score)
-  
           
 nrc_posneg <- sentiments %>%
   filter(lexicon == "nrc") %>% 
@@ -396,7 +290,6 @@ nrc_posneg <- sentiments %>%
 bing <- sentiments %>%
   filter(lexicon == "bing") %>%
   select(-score)
-
 
 loughran_posneg <- sentiments %>%
   filter(lexicon == "loughran") %>% filter(sentiment %in% c("positive","negative")) %>%
@@ -430,13 +323,14 @@ mean(orwellsentiment_nrc$sentiment)
 # peaks/ lows
 orwellsentiment_nrc_peaks <- orwellsentiment_nrc %>% filter (sentiment > 17 | sentiment < -17)
 
-# look for details
+# looking for details
 View(orwellsentiment_nrc_details %>% filter(index %in% orwellsentiment_nrc_peaks$index))
-# look for words
+# looking for words
 orwellsentiment_nrc_details %>% filter (word == "blackness")
 
-
 nrc %>% filter (word == "clock")
+
+# looking for the entire thing
 
 View(orwellsentiment_nrc_details)
 
@@ -537,8 +431,8 @@ pmoby_nrc <- ggplot(mobysentiment_nrc, aes(index, sentiment)) +
   theme(strip.text = element_text(face = "italic")) 
 
 ####> NRC with emotions ####
-
-nrc_1984 <- nrc %>% filter (word != "brother" & word != "victory" & word != "smith") # somewhat rectifying 1984 specific vocab
+# somewhat rectifying stuff due to the vocab used in 1984 
+nrc_1984 <- nrc %>% filter (word != "brother" & word != "victory" & word != "smith") 
 # orwell
 
 View(orwellsentiment_nrc_emo)
@@ -630,7 +524,6 @@ pcrime_nrc_emos <- ggplot(crimesentiment_nrc_emo, aes(index, sentiment), alpha=0
        y = "Sentiment", x = "Index (1 equals about 2 pages)") +
   scale_fill_viridis(end = 0.75, discrete=TRUE, direction = -1)# +
 
-
 pcrime_nrc_emos + theme_economist() + scale_colour_economist()
 pcrime_nrc_emos + theme_tufte() 
 porwell_nrc_emos + theme_economist() + scale_colour_economist()
@@ -639,7 +532,6 @@ porwell_nrc_emos  + theme_tufte()
 #  theme(strip.text=element_text(hjust=0)) +
 #  theme(strip.text = element_text(face = "italic"))
 
-
 pcrime_nrc_emos + geom_line(data=crimesentiment_nrc_emo, aes(x=index, y=sadness), colour = "blue") +
  # geom_line(data=crimesentiment_nrc_emo, aes(x=index, y=disgust), colour = "yellow") +
  # geom_line(data=crimesentiment_nrc_emo, aes(x=index, y=fear), colour = "black") +
@@ -647,7 +539,6 @@ pcrime_nrc_emos + geom_line(data=crimesentiment_nrc_emo, aes(x=index, y=sadness)
  geom_line(data=crimesentiment_nrc_emo, aes(x=index, y=anger), colour = "red") +
  # geom_line(data=crimesentiment_nrc_emo, aes(x=index, y=surprise), colour = "orange") +
   theme_economist() + scale_colour_economist()
-
 
 #charlie plot
 pcharlie_nrc_emos <- ggplot(charliesentiment_nrc_emo, aes(index, sentiment)) +
@@ -720,8 +611,6 @@ all_sentiments_sum <- all_sentiments %>% group_by(book) %>% summarise(anger =sum
 
 write.csv(all_sentiments_sum, file = "all_sentiments_sum.csv")
 
-
-
 tidy_all <- tidy_orwell1984[,4] %>% mutate(book = "1984")
 tidy_all <- rbind(tidy_all, tidy_crimepunishment[,4] %>% mutate(book = "crime"))
 tidy_all <- rbind(tidy_all, tidy_charlieandthechocolatefactory[,4] %>% mutate(book = "charlie"))
@@ -741,9 +630,6 @@ cities_ordered <- cities[order(cities$name, -cities$pop), ] #sort by id and reve
 cities_uniq <- cities_ordered %>% group_by(name) %>% filter(pop == max(pop))
 # test
 cities_uniq %>% filter(name == "london")
-
-View()
-
 
 # tolower
 #cities_uniq <- apply(cities_uniq,1,tolower)
@@ -909,7 +795,6 @@ pcharlie_sentimentr <- ggplot(charlie_sentimentr_summary, aes(index, sentiment_s
 
 pcharlie_nrc
 
-
 pcrime_sentimentr <- ggplot(crime_sentimentr_summary, aes(index, sentiment_sum)) +
   geom_bar(stat = "identity", show.legend = FALSE) +
   theme_minimal(base_size = 11) +
@@ -963,6 +848,4 @@ cleanup <- function(x) {
   result <- strwrap(result, width = 72)
   return(result)
 }
-
-
 
