@@ -265,7 +265,7 @@ crime <- as.character(crimepunishment[10:900,2])
 
 orw <- as.character(orwell1984[10:800,2])
 
-ran <- c("wind","cold","beer","toilet","rape","war","bile","ghetto","joy","happy","cat","blood","sugar","sex","magic")
+ran_check <- c("wind","cold","beer","toilet","war","bile","winter","joy","happy","cat","blood","sugar","sex","magic")
 
 # stting up lexicons
 
@@ -328,7 +328,11 @@ View(orwellsentiment_nrc_details %>% filter(index %in% orwellsentiment_nrc_peaks
 # looking for words
 orwellsentiment_nrc_details %>% filter (word == "blackness")
 
+#single word lookup
 nrc %>% filter (word == "clock")
+
+#multiple word lookup
+nrc %>% dplyr::filter (word %in% ran_check)
 
 # looking for the entire thing
 
