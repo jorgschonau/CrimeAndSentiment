@@ -1,4 +1,4 @@
-# Final Project
+# Final Project - Crime & Sentiment
 
 Everything for the final project for the Ubiqum bootcamp will go here.
 
