@@ -1,5 +1,5 @@
 #rm(list = ls())
-#
+
 ####> Libraries ####
 
 library(tidyverse)
@@ -221,7 +221,6 @@ TDM_Fear<-as.matrix(TDM_FearCloud) #Convert this into a matrix format
 #v
 wordcloud (FearCloud , scale=c(4,0.25), max.words=40, random.order=FALSE, rot.per=0.25, use.r.layout=T, colors=brewer.pal(8, "Dark2"))
 
-
 crimeCloud  <- Corpus (VectorSource(crimepunishment_clean))
 crimeCloud <-tm_map(crimeCloud, tolower)
 crimeCloud <-tm_map(crimeCloud, removeNumbers)
@@ -267,11 +266,13 @@ orw <- as.character(orwell1984[10:800,2])
 
 ran_check <- c("wind","cold","beer","toilet","war","bile","winter","joy","happy","cat","blood","sugar","sex","magic")
 
-# stting up lexicons
-
+# setting up lexicons
+# checking lexicon names
 unique(sentiments$lexicon)
 
 View(sentiments) 
+
+# creating indivudal lexicons
 bing <- sentiments %>%
   filter(lexicon == "bing") %>%
   select(-score)
