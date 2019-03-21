@@ -2,7 +2,7 @@
 
 Everything for the final project for the Ubiqum bootcamp will go here.
 
-In this project I created a sentiment analyses of a number of classic books (currently Crime & Punishment, Charlie and Chocolate Factory, 1984 & Hitchhiker's Guide to the Galaxy), also inlcuded is a visualisation using Tableau and / or Shiny.
+In this project I created a sentiment analyses of a number of classic books (currently Crime & Punishment, Charlie and Chocolate Factory, 1984 & Hitchhiker's Guide to the Galaxy), also included is a visualisation using Tableau and / or Shiny.
 
 You'll find the entire project on http://www.databarcelona.com/sentiments.html.
 
