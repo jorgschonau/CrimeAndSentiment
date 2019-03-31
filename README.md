@@ -6,6 +6,7 @@ In this project I created a sentiment analysis of a number of classic books (cur
 
 You'll find the entire project on http://www.databarcelona.com/sentiments.html.
 
-Here's a preview for the visualisation using Tableau:
+Here's a preview of the visualisation using Tableau:
+
 <kbd>
 [![crime & sentiment preview](https://github.com/jorgschonau/finalproject/blob/master/images/preview_crimesentiment.png)](http://www.databarcelona.com/sentiments.html)</kbd>
