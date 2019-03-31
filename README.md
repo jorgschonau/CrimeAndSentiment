@@ -1,6 +1,6 @@
 # Final Project - Crime & Sentiment
 
-Everything for the final project for the Ubiqum bootcamp will go here.
+The final project for Ubiqum Dta Analytics Bootcamp.
 
 In this project I created a sentiment analysis of a number of classic books (currently Crime & Punishment, Charlie and Chocolate Factory, 1984 & Hitchhiker's Guide to the Galaxy), also included is a visualisation using Tableau and / or Shiny.
 
